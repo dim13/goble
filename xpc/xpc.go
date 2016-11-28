@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"unsafe"
 )
@@ -171,8 +172,8 @@ var (
 	CONNECTION_INTERRUPTED = errors.New("connection interrupted")
 	CONNECTION_TERMINATED  = errors.New("connection terminated")
 
-	TYPE_OF_UUID  = refactor.TypeOf(UUID{})
-	TYPE_OF_BYTES = refactor.TypeOf([]byte{})
+	TYPE_OF_UUID  = reflect.TypeOf(UUID{})
+	TYPE_OF_BYTES = reflect.TypeOf([]byte{})
 
 	handlers = map[uintptr]XpcEventHandler{}
 )
@@ -231,13 +232,13 @@ func handleXpcEvent(event C.xpc_object_t, p C.ulong) {
 
 // goToXpc converts a go object to an xpc object
 func goToXpc(o interface{}) C.xpc_object_t {
-	return valueToXpc(refactor.ValueOf(o))
+	return valueToXpc(reflect.ValueOf(o))
 }
 
 // valueToXpc converts a go Value to an xpc object
 //
 // note that not all the types are supported, but only the subset required for Blued
-func valueToXpc(val refactor.Value) C.xpc_object_t {
+func valueToXpc(val reflect.Value) C.xpc_object_t {
 	if !val.IsValid() {
 		return nil
 	}
@@ -245,16 +246,16 @@ func valueToXpc(val refactor.Value) C.xpc_object_t {
 	var xv C.xpc_object_t
 
 	switch val.Kind() {
-	case refactor.Int, refactor.Int8, refactor.Int16, refactor.Int32, refactor.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		xv = C.xpc_int64_create(C.int64_t(val.Int()))
 
-	case refactor.Uint, refactor.Uint8, refactor.Uint16, refactor.Uint32:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32:
 		xv = C.xpc_int64_create(C.int64_t(val.Uint()))
 
-	case refactor.String:
+	case reflect.String:
 		xv = C.xpc_string_create(C.CString(val.String()))
 
-	case refactor.Map:
+	case reflect.Map:
 		xv = C.xpc_dictionary_create(nil, nil, 0)
 		for _, k := range val.MapKeys() {
 			v := valueToXpc(val.MapIndex(k))
@@ -264,11 +265,11 @@ func valueToXpc(val refactor.Value) C.xpc_object_t {
 			}
 		}
 
-	case refactor.Array, refactor.Slice:
+	case reflect.Array, reflect.Slice:
 		if val.Type() == TYPE_OF_UUID {
 			// Array of bytes
 			var uuid [16]byte
-			refactor.Copy(refactor.ValueOf(uuid[:]), val)
+			reflect.Copy(reflect.ValueOf(uuid[:]), val)
 			xv = C.xpc_uuid_create(C.ptr_to_uuid(unsafe.Pointer(&uuid[0])))
 		} else if val.Type() == TYPE_OF_BYTES {
 			// slice of bytes
@@ -286,7 +287,7 @@ func valueToXpc(val refactor.Value) C.xpc_object_t {
 			}
 		}
 
-	case refactor.Interface, refactor.Ptr:
+	case reflect.Interface, reflect.Ptr:
 		xv = valueToXpc(val.Elem())
 
 	default:
