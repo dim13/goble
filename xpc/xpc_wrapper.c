@@ -1,9 +1,12 @@
-#include <dispatch/dispatch.h>
+#include <Block.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <xpc/xpc.h>
 #include <xpc/connection.h>
-#include <Block.h>
-#include <stdlib.h>
-#include <stdio.h>
+
+#include <dispatch/dispatch.h>
 
 #include "_cgo_export.h"
 

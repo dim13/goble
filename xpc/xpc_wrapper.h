@@ -1,8 +1,6 @@
 #ifndef _XPC_WRAPPER_H_
 #define _XPC_WRAPPER_H_
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <xpc/xpc.h>
 #include <sys/utsname.h>
 
