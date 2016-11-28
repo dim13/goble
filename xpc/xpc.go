@@ -63,30 +63,27 @@ func (d Dict) GetString(k, defv string) string {
 	if v := d[k]; v != nil {
 		//log.Printf("GetString %s %#v\n", k, v)
 		return v.(string)
-	} else {
-		//log.Printf("GetString %s default %#v\n", k, defv)
-		return defv
 	}
+	//log.Printf("GetString %s default %#v\n", k, defv)
+	return defv
 }
 
 func (d Dict) GetBytes(k string, defv []byte) []byte {
 	if v := d[k]; v != nil {
 		//log.Printf("GetBytes %s %#v\n", k, v)
 		return v.([]byte)
-	} else {
-		//log.Printf("GetBytes %s default %#v\n", k, defv)
-		return defv
 	}
+	//log.Printf("GetBytes %s default %#v\n", k, defv)
+	return defv
 }
 
 func (d Dict) GetInt(k string, defv int) int {
 	if v := d[k]; v != nil {
 		//log.Printf("GetString %s %#v\n", k, v)
 		return int(v.(int64))
-	} else {
-		//log.Printf("GetString %s default %#v\n", k, defv)
-		return defv
 	}
+	//log.Printf("GetString %s default %#v\n", k, defv)
+	return defv
 }
 
 func (d Dict) GetUUID(k string) UUID {
@@ -206,7 +203,8 @@ func handleXpcEvent(event C.xpc_object_t, p C.ulong) {
 	}
 
 	if t == C.TYPE_ERROR {
-		if event == C.ERROR_CONNECTION_INVALID {
+		switch event {
+		case C.ERROR_CONNECTION_INVALID:
 			// The client process on the other end of the connection has either
 			// crashed or cancelled the connection. After receiving this error,
 			// the connection is in an invalid state, and you do not need to
@@ -214,14 +212,14 @@ func handleXpcEvent(event C.xpc_object_t, p C.ulong) {
 			// here.
 			//log.Println("connection invalid")
 			eh.HandleXpcEvent(nil, CONNECTION_INVALID)
-		} else if event == C.ERROR_CONNECTION_INTERRUPTED {
+		case C.ERROR_CONNECTION_INTERRUPTED:
 			//log.Println("connection interrupted")
 			eh.HandleXpcEvent(nil, CONNECTION_INTERRUPTED)
-		} else if event == C.ERROR_CONNECTION_TERMINATED {
+		case C.ERROR_CONNECTION_TERMINATED:
 			// Handle per-connection termination cleanup.
 			//log.Println("connection terminated")
 			eh.HandleXpcEvent(nil, CONNECTION_TERMINATED)
-		} else {
+		default:
 			//log.Println("got some error", event)
 			eh.HandleXpcEvent(nil, fmt.Errorf("%v", event))
 		}
