@@ -17,7 +17,14 @@ import (
 // BLE support
 //
 
-var STATES = []string{"unknown", "resetting", "unsupported", "unauthorized", "poweredOff", "poweredOn"}
+var STATES = []string{
+	"unknown",
+	"resetting",
+	"unsupported",
+	"unauthorized",
+	"poweredOff",
+	"poweredOn",
+}
 
 type Property int
 
