@@ -9,10 +9,10 @@ Once I have something working it can maybe integrated with [github.com/paypal/ga
 
 ## Installation
 
-    $ go get github.com/raff/goble
+    $ go get github.com/dim13/goble
     
 ## Documentation
-http://godoc.org/github.com/raff/goble
+http://godoc.org/github.com/dim13/goble
 
 ## Examples
 * examples/main.go : an example of how to use most of the APIs

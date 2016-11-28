@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"../../goble"
+	"github.com/dim13/goble"
 )
 
 func main() {

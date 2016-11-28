@@ -3,7 +3,7 @@ package goble
 import (
 	"log"
 
-	"github.com/raff/goble/xpc"
+	"github.com/dim13/goble/xpc"
 )
 
 const (

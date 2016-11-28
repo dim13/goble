@@ -9,10 +9,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/raff/goble/xpc"
+	"github.com/dim13/goble/xpc"
 )
 
-// "github.com/raff/goble/xpc"
+// "github.com/dim13/goble/xpc"
 //
 // BLE support
 //

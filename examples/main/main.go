@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/raff/goble"
-	"github.com/raff/goble/xpc"
+	"github.com/dim13/goble"
+	"github.com/dim13/goble/xpc"
 )
 
 func main() {
