@@ -1,8 +1,6 @@
 package xpc
 
-import (
-	"testing"
-)
+import "testing"
 
 func CheckUUID(t *testing.T, v interface{}) UUID {
 	if uuid, ok := v.(UUID); ok {
