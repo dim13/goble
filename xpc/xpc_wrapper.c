@@ -26,17 +26,14 @@ xpc_object_t ERROR_CONNECTION_TERMINATED = (xpc_object_t) XPC_ERROR_TERMINATION_
 
 const ptr_to_uuid_t ptr_to_uuid(void *p) { return (ptr_to_uuid_t)p; }
 
-
 //
 // connect to XPC service
 //
 xpc_connection_t XpcConnect(char *service, uintptr_t ctx) {
     dispatch_queue_t queue = dispatch_queue_create(service, 0);
     xpc_connection_t conn = xpc_connection_create_mach_service(service, queue, XPC_CONNECTION_MACH_SERVICE_PRIVILEGED);
-
     // making a local copy, that should be made "persistent" with the following Block_copy
     //GoInterface ictx = *((GoInterface*)ctx);
-
     xpc_connection_set_event_handler(conn,
         Block_copy(^(xpc_object_t event) {
             handleXpcEvent(event, ctx); //(void *)&ictx);
