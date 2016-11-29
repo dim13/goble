@@ -50,7 +50,6 @@ func (d Dict) MustGetBytes(k string) []byte {
 
 func (d Dict) MustGetHexBytes(k string) string {
 	return hex.EncodeToString(d[k].([]byte))
-	//return fmt.Sprintf("%x", d[k].([]byte))
 }
 
 func (d Dict) MustGetInt(k string) int {
@@ -62,7 +61,7 @@ func (d Dict) MustGetUUID(k string) UUID {
 }
 
 func (d Dict) GetString(k, defv string) string {
-	if v := d[k]; v != nil {
+	if v, ok := d[k]; ok {
 		//log.Printf("GetString %s %#v\n", k, v)
 		return v.(string)
 	}
@@ -71,7 +70,7 @@ func (d Dict) GetString(k, defv string) string {
 }
 
 func (d Dict) GetBytes(k string, defv []byte) []byte {
-	if v := d[k]; v != nil {
+	if v, ok := d[k]; ok {
 		//log.Printf("GetBytes %s %#v\n", k, v)
 		return v.([]byte)
 	}
@@ -80,7 +79,7 @@ func (d Dict) GetBytes(k string, defv []byte) []byte {
 }
 
 func (d Dict) GetInt(k string, defv int) int {
-	if v := d[k]; v != nil {
+	if v, ok := d[k]; ok {
 		//log.Printf("GetString %s %#v\n", k, v)
 		return int(v.(int64))
 	}
