@@ -6,6 +6,7 @@ package xpc
 import "C"
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -48,7 +49,8 @@ func (d Dict) MustGetBytes(k string) []byte {
 }
 
 func (d Dict) MustGetHexBytes(k string) string {
-	return fmt.Sprintf("%x", d[k].([]byte))
+	return hex.EncodeToString(d[k].([]byte))
+	//return fmt.Sprintf("%x", d[k].([]byte))
 }
 
 func (d Dict) MustGetInt(k string) int {
@@ -100,35 +102,35 @@ func (a Array) GetUUID(k int) UUID {
 // a UUID
 type UUID [16]byte
 
+func NewUUID(b []byte) (uuid UUID) {
+	copy(uuid[:], b)
+	return uuid
+}
+
 func MakeUUID(s string) UUID {
-	var sl []byte
-
 	s = strings.Replace(s, "-", "", -1)
-	fmt.Sscanf(s, "%32x", &sl)
-
-	var uuid [16]byte
-	copy(uuid[:], sl)
-	return UUID(uuid)
+	sl, _ := hex.DecodeString(s)
+	return NewUUID(sl)
 }
 
 func MustUUID(s string) UUID {
-	var sl []byte
-
 	s = strings.Replace(s, "-", "", -1)
 	if len(s) != 32 {
 		log.Fatal("invalid UUID")
 	}
-	if n, err := fmt.Sscanf(s, "%32x", &sl); err != nil || n != 1 {
-		log.Fatal("invalid UUID ", s, " len ", n, " error ", err)
+	sl, err := hex.DecodeString(s)
+	if err != nil {
+		log.Fatalf("invalid UUID %q: %v", s, err)
 	}
+	return NewUUID(sl)
+}
 
-	var uuid [16]byte
-	copy(uuid[:], sl)
-	return UUID(uuid)
+func (uuid UUID) Bytes() []byte {
+	return uuid[:]
 }
 
 func (uuid UUID) String() string {
-	return fmt.Sprintf("%x", [16]byte(uuid))
+	return hex.EncodeToString(uuid[:])
 }
 
 func GetUUID(v interface{}) UUID {
