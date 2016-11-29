@@ -39,16 +39,15 @@ func (e *Emitter) Init() {
 
 	// event handler
 	go func() {
-		for {
-			ev := <-e.event
-
+		defer close(e.event) // FIXME: this causes new "emits" to panic.
+		for ev := range e.event {
 			if fn, ok := e.handlers[ev.Name]; ok {
 				if fn(ev) {
-					break
+					return
 				}
 			} else if fn, ok := e.handlers[ALL]; ok {
 				if fn(ev) {
-					break
+					return
 				}
 			} else {
 				if e.verbose {
@@ -56,8 +55,6 @@ func (e *Emitter) Init() {
 				}
 			}
 		}
-
-		close(e.event) // TOFIX: this causes new "emits" to panic.
 	}()
 }
 
