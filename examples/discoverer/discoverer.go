@@ -17,13 +17,13 @@ func main() {
 	ble.SetVerbose(*verbose)
 
 	if *verbose {
-		ble.On(goble.ALL, func(ev goble.Event) (done bool) {
+		ble.Register(goble.ALL, func(ev goble.Event) (done bool) {
 			log.Println("Event", ev)
 			return
 		})
 	}
 
-	ble.On("stateChange", func(ev goble.Event) (done bool) {
+	ble.Register("stateChange", func(ev goble.Event) (done bool) {
 		if ev.State == "poweredOn" {
 			ble.StartScanning(nil, *dups)
 		} else {
@@ -34,7 +34,7 @@ func main() {
 		return
 	})
 
-	ble.On("discover", func(ev goble.Event) (done bool) {
+	ble.Register("discover", func(ev goble.Event) (done bool) {
 		fmt.Println()
 		fmt.Println("peripheral discovered (", ev.DeviceUUID, "):")
 		fmt.Println("\thello my local name is:")

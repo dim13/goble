@@ -31,7 +31,7 @@ func explore(ble *goble.BLE, peripheral *goble.Peripheral) {
 	results := map[string]Result{}
 
 	// connect
-	ble.On("connect", func(ev goble.Event) (done bool) {
+	ble.Register("connect", func(ev goble.Event) (done bool) {
 		DebugPrint("connected", ev)
 		ble.DiscoverServices(ev.DeviceUUID, nil)
 
@@ -44,7 +44,7 @@ func explore(ble *goble.BLE, peripheral *goble.Peripheral) {
 	})
 
 	// discover services
-	ble.On("servicesDiscover", func(ev goble.Event) (done bool) {
+	ble.Register("servicesDiscover", func(ev goble.Event) (done bool) {
 		DebugPrint("serviceDiscovered", ev)
 		for sid, service := range ev.Peripheral.Services {
 			// this is a map that contains services UUIDs (string) and service startHandle (int)
@@ -65,7 +65,7 @@ func explore(ble *goble.BLE, peripheral *goble.Peripheral) {
 	})
 
 	// discover characteristics
-	ble.On("characteristicsDiscover", func(ev goble.Event) (done bool) {
+	ble.Register("characteristicsDiscover", func(ev goble.Event) (done bool) {
 		DebugPrint("characteristicsDiscovered", ev)
 		serviceUuid := ev.ServiceUuid
 		serviceResult := results[serviceUuid]
@@ -101,14 +101,14 @@ func explore(ble *goble.BLE, peripheral *goble.Peripheral) {
 	})
 
 	// discover descriptors
-	ble.On("descriptorsDiscover", func(ev goble.Event) (done bool) {
+	ble.Register("descriptorsDiscover", func(ev goble.Event) (done bool) {
 		DebugPrint("descriptorsDiscovered", ev)
 		fmt.Println("    descriptors  ", ev.Peripheral.Services[ev.ServiceUuid].Characteristics[ev.CharacteristicUuid].Descriptors)
 		return
 	})
 
 	// read
-	ble.On("read", func(ev goble.Event) (done bool) {
+	ble.Register("read", func(ev goble.Event) (done bool) {
 		DebugPrint("read", ev)
 		serviceUuid := ev.ServiceUuid
 		serviceResult := results[serviceUuid]
@@ -126,7 +126,7 @@ func explore(ble *goble.BLE, peripheral *goble.Peripheral) {
 	})
 
 	// disconnect
-	ble.On("disconnect", func(ev goble.Event) (done bool) {
+	ble.Register("disconnect", func(ev goble.Event) (done bool) {
 		DebugPrint("disconnected", ev)
 		os.Exit(0)
 		return true
@@ -206,13 +206,13 @@ func main() {
 	ble.SetVerbose(*verbose)
 
 	if *verbose {
-		ble.On(goble.ALL, func(ev goble.Event) (done bool) {
+		ble.Register(goble.ALL, func(ev goble.Event) (done bool) {
 			log.Println("Event", ev)
 			return
 		})
 	}
 
-	ble.On("stateChange", func(ev goble.Event) (done bool) {
+	ble.Register("stateChange", func(ev goble.Event) (done bool) {
 		DebugPrint("stateChanged", ev)
 		if ev.State == "poweredOn" {
 			ble.StartScanning(nil, *dups)
@@ -224,7 +224,7 @@ func main() {
 		return
 	})
 
-	ble.On("discover", func(ev goble.Event) (done bool) {
+	ble.Register("discover", func(ev goble.Event) (done bool) {
 		DebugPrint("discovered", ev)
 		if peripheralUuid == ev.DeviceUUID.String() {
 			ble.StopScanning()
