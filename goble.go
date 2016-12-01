@@ -163,6 +163,7 @@ func (ble *BLE) SetVerbose(v bool) {
 	ble.Emitter.SetVerbose(v)
 }
 
+// events
 const (
 	stateChange             = 6
 	advertisingStart        = 16
@@ -484,7 +485,6 @@ func (ble *BLE) sendCBMsg(id int, args xpc.Dict) {
 	if ble.verbose {
 		log.Printf("sendCBMsg %#v\n", message)
 	}
-
 	ble.conn.Send(message, ble.verbose)
 }
 
