@@ -163,6 +163,21 @@ func (ble *BLE) SetVerbose(v bool) {
 	ble.Emitter.SetVerbose(v)
 }
 
+const (
+	stateChange             = 6
+	advertisingStart        = 16
+	advertisingStop         = 17
+	discover                = 37
+	connect                 = 38
+	disconnect              = 40
+	mtuChange               = 53
+	rssiUpdate              = 54
+	serviceDiscover         = 55
+	characteristicsDiscover = 63
+	descriptorsDiscover     = 75
+	read                    = 70
+)
+
 // process BLE events and asynchronous errors
 // (implements XpcEventHandler)
 func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
@@ -181,11 +196,11 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 	}
 
 	switch id {
-	case 6: // state change
+	case stateChange:
 		state := args.MustGetInt("kCBMsgArgState")
 		ble.Emit(Event{Name: "stateChange", State: STATES[state]})
 
-	case 16: // advertising start
+	case advertisingStart:
 		result := args.MustGetInt("kCBMsgArgResult")
 		if result != 0 {
 			log.Printf("event: error in advertisingStart %v\n", result)
@@ -193,7 +208,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			ble.Emit(Event{Name: "advertisingStart"})
 		}
 
-	case 17: // advertising stop
+	case advertisingStop:
 		result := args.MustGetInt("kCBMsgArgResult")
 		if result != 0 {
 			log.Printf("event: error in advertisingStop %v\n", result)
@@ -201,7 +216,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			ble.Emit(Event{Name: "advertisingStop"})
 		}
 
-	case 37: // discover
+	case discover:
 		advdata := args.MustGetDict("kCBMsgArgAdvertisementData")
 		if len(advdata) == 0 {
 			//log.Println("event: discover with no advertisment data")
@@ -265,15 +280,15 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			ble.Emit(Event{Name: "discover", DeviceUUID: deviceUuid, Peripheral: *p})
 		}
 
-	case 38: // connect
+	case connect:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		ble.Emit(Event{Name: "connect", DeviceUUID: deviceUuid})
 
-	case 40: // disconnect
+	case disconnect:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		ble.Emit(Event{Name: "disconnect", DeviceUUID: deviceUuid})
 
-	case 53: // mtuChange
+	case mtuChange:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		mtu := args.MustGetInt("kCBMsgArgATTMTU")
 
@@ -282,7 +297,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			ble.Emit(Event{Name: "mtuChange", DeviceUUID: deviceUuid, Peripheral: *p, Mtu: mtu})
 		}
 
-	case 54: // rssiUpdate
+	case rssiUpdate:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		rssi := args.MustGetInt("kCBMsgArgData")
 
@@ -291,7 +306,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			ble.Emit(Event{Name: "rssiUpdate", DeviceUUID: deviceUuid, Peripheral: *p})
 		}
 
-	case 55: // serviceDiscover
+	case serviceDiscover:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		servicesUuids := []string{}
 		servicesHandles := map[interface{}]*ServiceHandle{}
@@ -322,7 +337,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			ble.Emit(Event{Name: "servicesDiscover", DeviceUUID: deviceUuid, Peripheral: *p})
 		}
 
-	case 63: // characteristicsDiscover
+	case characteristicsDiscover:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		serviceStartHandle := args.MustGetInt("kCBMsgArgServiceStartHandle")
 
@@ -396,7 +411,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			log.Println("no peripheral", deviceUuid)
 		}
 
-	case 75: // descriptorsDiscover
+	case descriptorsDiscover:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		characteristicsHandle := args.MustGetInt("kCBMsgArgCharacteristicHandle")
 		//result := args.MustGetInt("kCBMsgArgResult")
@@ -423,7 +438,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			log.Println("no peripheral", deviceUuid)
 		}
 
-	case 70: // read
+	case read:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		characteristicsHandle := args.MustGetInt("kCBMsgArgCharacteristicHandle")
 		//result := args.MustGetInt("kCBMsgArgResult")
