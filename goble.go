@@ -29,14 +29,14 @@ var STATES = []string{
 type Property int
 
 const (
-	Broadcast                 Property = 1 << iota
-	Read                               = 1 << iota
-	WriteWithoutResponse               = 1 << iota
-	Write                              = 1 << iota
-	Notify                             = 1 << iota
-	Indicate                           = 1 << iota
-	AuthenticatedSignedWrites          = 1 << iota
-	ExtendedProperties                 = 1 << iota
+	Broadcast Property = 1 << iota
+	Read
+	WriteWithoutResponse
+	Write
+	Notify
+	Indicate
+	AuthenticatedSignedWrites
+	ExtendedProperties
 )
 
 func (p Property) Readable() bool {
@@ -362,38 +362,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 				}
 
 				properties := cDict.MustGetInt("kCBMsgArgCharacteristicProperties")
-
-				if (properties & 0x01) != 0 {
-					characteristic.Properties |= Broadcast
-				}
-
-				if (properties & 0x02) != 0 {
-					characteristic.Properties |= Read
-				}
-
-				if (properties & 0x04) != 0 {
-					characteristic.Properties |= WriteWithoutResponse
-				}
-
-				if (properties & 0x08) != 0 {
-					characteristic.Properties |= Write
-				}
-
-				if (properties & 0x10) != 0 {
-					characteristic.Properties |= Notify
-				}
-
-				if (properties & 0x20) != 0 {
-					characteristic.Properties |= Indicate
-				}
-
-				if (properties & 0x40) != 0 {
-					characteristic.Properties |= AuthenticatedSignedWrites
-				}
-
-				if (properties & 0x80) != 0 {
-					characteristic.Properties |= ExtendedProperties
-				}
+				characteristic.Properties = Property(properties)
 
 				if service != nil {
 					service.Characteristics[characteristic.Uuid] = &characteristic
