@@ -36,29 +36,12 @@ func (d Dict) Contains(k string) bool {
 	return ok
 }
 
-func (d Dict) MustGetDict(k string) Dict {
-	return d[k].(Dict)
-}
-
-func (d Dict) MustGetArray(k string) Array {
-	return d[k].(Array)
-}
-
-func (d Dict) MustGetBytes(k string) []byte {
-	return d[k].([]byte)
-}
-
-func (d Dict) MustGetHexBytes(k string) string {
-	return hex.EncodeToString(d[k].([]byte))
-}
-
-func (d Dict) MustGetInt(k string) int {
-	return int(d[k].(int64))
-}
-
-func (d Dict) MustGetUUID(k string) UUID {
-	return d[k].(UUID)
-}
+func (d Dict) MustGetDict(k string) Dict       { return d[k].(Dict) }
+func (d Dict) MustGetArray(k string) Array     { return d[k].(Array) }
+func (d Dict) MustGetBytes(k string) []byte    { return d[k].([]byte) }
+func (d Dict) MustGetHexBytes(k string) string { return hex.EncodeToString(d[k].([]byte)) }
+func (d Dict) MustGetInt(k string) int         { return int(d[k].(int64)) }
+func (d Dict) MustGetUUID(k string) UUID       { return d[k].(UUID) }
 
 func (d Dict) GetString(k, defv string) string {
 	if v, ok := d[k]; ok {
@@ -166,12 +149,12 @@ func GetUUID(v interface{}) UUID {
 }
 
 var (
-	CONNECTION_INVALID     = errors.New("connection invalid")
-	CONNECTION_INTERRUPTED = errors.New("connection interrupted")
-	CONNECTION_TERMINATED  = errors.New("connection terminated")
+	ErrConnectionInvalid     = errors.New("connection invalid")
+	ErrConnectionInterrupted = errors.New("connection interrupted")
+	ErrConnectionTerminated  = errors.New("connection terminated")
 
-	TYPE_OF_UUID  = reflect.TypeOf(UUID{})
-	TYPE_OF_BYTES = reflect.TypeOf([]byte{})
+	typeOfUUID  = reflect.TypeOf(UUID{})
+	typeOfBytes = reflect.TypeOf([]byte{})
 
 	handlers = map[uintptr]XpcEventHandler{}
 )
@@ -212,14 +195,14 @@ func handleXpcEvent(event C.xpc_object_t, p C.ulong) {
 			// call xpc_connection_cancel(). Just tear down any associated state
 			// here.
 			//log.Println("connection invalid")
-			eh.HandleXpcEvent(nil, CONNECTION_INVALID)
+			eh.HandleXpcEvent(nil, ErrConnectionInvalid)
 		case C.ERROR_CONNECTION_INTERRUPTED:
 			//log.Println("connection interrupted")
-			eh.HandleXpcEvent(nil, CONNECTION_INTERRUPTED)
+			eh.HandleXpcEvent(nil, ErrConnectionInterrupted)
 		case C.ERROR_CONNECTION_TERMINATED:
 			// Handle per-connection termination cleanup.
 			//log.Println("connection terminated")
-			eh.HandleXpcEvent(nil, CONNECTION_TERMINATED)
+			eh.HandleXpcEvent(nil, ErrConnectionTerminated)
 		default:
 			//log.Println("got some error", event)
 			eh.HandleXpcEvent(nil, fmt.Errorf("%v", event))
@@ -265,12 +248,12 @@ func valueToXpc(val reflect.Value) C.xpc_object_t {
 		}
 
 	case reflect.Array, reflect.Slice:
-		if val.Type() == TYPE_OF_UUID {
+		if val.Type() == typeOfUUID {
 			// Array of bytes
 			var uuid [16]byte
 			reflect.Copy(reflect.ValueOf(uuid[:]), val)
 			xv = C.xpc_uuid_create(C.ptr_to_uuid(unsafe.Pointer(&uuid[0])))
-		} else if val.Type() == TYPE_OF_BYTES {
+		} else if val.Type() == typeOfBytes {
 			// slice of bytes
 			xv = C.xpc_data_create(unsafe.Pointer(val.Pointer()), C.size_t(val.Len()))
 		} else {
