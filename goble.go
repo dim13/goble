@@ -1,7 +1,5 @@
 package goble
 
-import "C"
-
 import (
 	"bytes"
 	"encoding/binary"
