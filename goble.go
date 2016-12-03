@@ -17,14 +17,18 @@ import (
 // BLE support
 //
 
-var STATES = []string{
-	"unknown",
-	"resetting",
-	"unsupported",
-	"unauthorized",
-	"poweredOff",
-	"poweredOn",
-}
+//go:generate stringer -type State
+
+type State int
+
+const (
+	unknown State = iota
+	resetting
+	unsupported
+	unauthorized
+	poweredOff
+	poweredOn
+)
 
 type Property int
 
@@ -201,7 +205,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 		state := args.MustGetInt("kCBMsgArgState")
 		ble.Emit(Event{
 			Name:  "stateChange",
-			State: STATES[state],
+			State: State(state).String(),
 		})
 
 	case advertisingStart:
