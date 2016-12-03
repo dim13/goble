@@ -53,7 +53,11 @@ func TestConvertSlice(t *testing.T) {
 }
 
 func TestConvertSliceUUID(t *testing.T) {
-	arr := []UUID{MakeUUID("0000000000000000"), MakeUUID("1111111111111111"), MakeUUID("2222222222222222")}
+	arr := []UUID{
+		MakeUUID("0000000000000000"),
+		MakeUUID("1111111111111111"),
+		MakeUUID("2222222222222222"),
+	}
 
 	xv := goToXpc(arr)
 	v := xpcToGo(xv)
