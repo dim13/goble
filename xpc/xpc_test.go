@@ -1,14 +1,16 @@
 package xpc
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
-func CheckUUID(t *testing.T, v interface{}) UUID {
+func checkUUID(t *testing.T, v interface{}) UUID {
 	if uuid, ok := v.(UUID); ok {
 		return uuid
-	} else {
-		t.Errorf("not a UUID: %#v\n", v)
-		return uuid
 	}
+	t.Errorf("not a UUID: %#v", v)
+	return UUID{}
 }
 
 func TestConvertUUID(t *testing.T) {
@@ -19,10 +21,10 @@ func TestConvertUUID(t *testing.T) {
 
 	xpc_release(xv)
 
-	uuid2 := CheckUUID(t, v)
+	uuid2 := checkUUID(t, v)
 
 	if uuid != uuid2 {
-		t.Errorf("expected %#v got %#v\n", uuid, uuid2)
+		t.Errorf("expected %#v got %#v", uuid, uuid2)
 	}
 }
 
@@ -34,16 +36,19 @@ func TestConvertSlice(t *testing.T) {
 
 	xpc_release(xv)
 
-	if arr2, ok := v.(Array); !ok {
-		t.Errorf("not an array: %#v\n", v)
-	} else if len(arr) != len(arr2) {
-		t.Errorf("expected %#v got %#v\n", arr, arr2)
-	} else {
-		for i := range arr {
+	arr2, ok := v.(Array)
+	if !ok {
+		t.Fatalf("not an array: %#v", v)
+	}
+	if len(arr) != len(arr2) {
+		t.Fatalf("want %#v, got %#v", arr, arr2)
+	}
+	for i := range arr {
+		t.Run(fmt.Sprintf("array[%d]", i), func(t *testing.T) {
 			if arr[i] != arr2[i] {
-				t.Errorf("expected array[%d]: %#v got %#v\n", i, arr[i], arr2[i])
+				t.Errorf("want %#v, got %#v", arr[i], arr2[i])
 			}
-		}
+		})
 	}
 }
 
@@ -55,19 +60,21 @@ func TestConvertSliceUUID(t *testing.T) {
 
 	xpc_release(xv)
 
-	if arr2, ok := v.(Array); !ok {
-		t.Errorf("not an array: %#v\n", v)
-	} else if len(arr) != len(arr2) {
-		t.Errorf("expected %#v got %#v\n", arr, arr2)
-	} else {
-		for i := range arr {
-			uuid1 := CheckUUID(t, arr[i])
-			uuid2 := CheckUUID(t, arr2[i])
-
+	arr2, ok := v.(Array)
+	if !ok {
+		t.Fatalf("not an array: %#v", v)
+	}
+	if len(arr) != len(arr2) {
+		t.Fatalf("want %#v, got %#v", arr, arr2)
+	}
+	for i := range arr {
+		t.Run(fmt.Sprintf("array[%d]", i), func(t *testing.T) {
+			uuid1 := checkUUID(t, arr[i])
+			uuid2 := checkUUID(t, arr2[i])
 			if uuid1 != uuid2 {
-				t.Errorf("expected array[%d]: %#v got %#v\n", i, arr[i], arr2[i])
+				t.Errorf("want %#v, got %#v", arr[i], arr2[i])
 			}
-		}
+		})
 	}
 }
 
@@ -83,22 +90,18 @@ func TestConvertMap(t *testing.T) {
 
 	xpc_release(xv)
 
-	if d2, ok := v.(Dict); !ok {
-		t.Errorf("not a map: %#v", v)
-	} else if len(d) != len(d2) {
-		t.Errorf("expected %#v got %#v\n", d, d2)
-	} else {
-		fail := false
-
-		for k, v := range d {
+	d2, ok := v.(Dict)
+	if !ok {
+		t.Fatalf("not a map: %#v", v)
+	}
+	if len(d) != len(d2) {
+		t.Fatalf("want %#v, got %#v", d, d2)
+	}
+	for k, v := range d {
+		t.Run(fmt.Sprintf("map[%s]", k), func(t *testing.T) {
 			if v != d2[k] {
-				t.Logf("expected map[%s]: %#v got %#v\n", k, v, d2[k])
-				fail = true
+				t.Errorf("want %#v, got %#v", v, d2[k])
 			}
-		}
-
-		if fail {
-			t.Error("test failed")
-		}
+		})
 	}
 }
