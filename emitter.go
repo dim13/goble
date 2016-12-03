@@ -39,20 +39,19 @@ func (e *Emitter) Init() {
 
 	// event handler
 	go func() {
-		defer close(e.event) // FIXME: this causes new "emits" to panic.
 		for ev := range e.event {
-			if fn, ok := e.handlers[ev.Name]; ok {
-				if fn(ev) {
-					return
-				}
-			} else if fn, ok := e.handlers[ALL]; ok {
-				if fn(ev) {
-					return
-				}
-			} else {
-				if e.verbose {
-					log.Println("unhandled Emit", ev)
-				}
+			fn, ok := e.handlers[ev.Name]
+			if !ok {
+				fn, ok = e.handlers[ALL]
+			}
+			if ok {
+				go func(ev Event) {
+					if fn(ev) {
+						close(e.event)
+					}
+				}(ev)
+			} else if e.verbose {
+				log.Println("unhandled Emit", ev)
 			}
 		}
 	}()
@@ -64,7 +63,11 @@ func (e *Emitter) SetVerbose(v bool) {
 
 // Emit sends the event on the 'event' channel
 func (e *Emitter) Emit(ev Event) {
-	e.event <- ev
+	select {
+	case e.event <- ev:
+	default:
+		log.Println("skip Event", ev)
+	}
 }
 
 // Register an handler for the specified event
