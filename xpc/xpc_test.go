@@ -24,7 +24,7 @@ func TestConvertUUID(t *testing.T) {
 	uuid2 := checkUUID(t, v)
 
 	if uuid != uuid2 {
-		t.Errorf("expected %#v got %#v", uuid, uuid2)
+		t.Errorf("want %#v, got %#v", uuid, uuid2)
 	}
 }
 
