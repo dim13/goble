@@ -167,18 +167,18 @@ func (ble *BLE) SetVerbose(v bool) {
 
 // events
 const (
-	stateChange             = 6
-	advertisingStart        = 16
-	advertisingStop         = 17
-	discover                = 37
-	connect                 = 38
-	disconnect              = 40
-	mtuChange               = 53
-	rssiUpdate              = 54
-	serviceDiscover         = 55
-	characteristicsDiscover = 63
-	descriptorsDiscover     = 75
-	read                    = 70
+	stateChangeEvt             = 6
+	advertisingStartEvt        = 16
+	advertisingStopEvt         = 17
+	discoverEvt                = 37
+	connectEvt                 = 38
+	disconnectEvt              = 40
+	mtuChangeEvt               = 53
+	rssiUpdateEvt              = 54
+	serviceDiscoverEvt         = 55
+	characteristicsDiscoverEvt = 63
+	descriptorDiscoverEvt      = 75
+	readEvt                    = 70
 )
 
 // process BLE events and asynchronous errors
@@ -199,14 +199,14 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 	}
 
 	switch id {
-	case stateChange:
+	case stateChangeEvt:
 		state := args.MustGetInt("kCBMsgArgState")
 		ble.Emit(Event{
 			Name:  "stateChange",
 			State: State(state).String(),
 		})
 
-	case advertisingStart:
+	case advertisingStartEvt:
 		result := args.MustGetInt("kCBMsgArgResult")
 		if result != 0 {
 			log.Printf("event: error in advertisingStart %v\n", result)
@@ -216,7 +216,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			})
 		}
 
-	case advertisingStop:
+	case advertisingStopEvt:
 		result := args.MustGetInt("kCBMsgArgResult")
 		if result != 0 {
 			log.Printf("event: error in advertisingStop %v\n", result)
@@ -226,7 +226,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			})
 		}
 
-	case discover:
+	case discoverEvt:
 		advdata := args.MustGetDict("kCBMsgArgAdvertisementData")
 		if len(advdata) == 0 {
 			//log.Println("event: discover with no advertisment data")
@@ -294,21 +294,21 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			})
 		}
 
-	case connect:
+	case connectEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		ble.Emit(Event{
 			Name:       "connect",
 			DeviceUUID: deviceUuid,
 		})
 
-	case disconnect:
+	case disconnectEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		ble.Emit(Event{
 			Name:       "disconnect",
 			DeviceUUID: deviceUuid,
 		})
 
-	case mtuChange:
+	case mtuChangeEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		mtu := args.MustGetInt("kCBMsgArgATTMTU")
 
@@ -322,7 +322,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			})
 		}
 
-	case rssiUpdate:
+	case rssiUpdateEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		rssi := args.MustGetInt("kCBMsgArgData")
 
@@ -335,7 +335,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			})
 		}
 
-	case serviceDiscover:
+	case serviceDiscoverEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		servicesUuids := []string{}
 		servicesHandles := map[interface{}]*ServiceHandle{}
@@ -371,7 +371,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			})
 		}
 
-	case characteristicsDiscover:
+	case characteristicsDiscoverEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		serviceStartHandle := args.MustGetInt("kCBMsgArgServiceStartHandle")
 
@@ -419,7 +419,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			log.Println("no peripheral", deviceUuid)
 		}
 
-	case descriptorsDiscover:
+	case descriptorDiscoverEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		characteristicsHandle := args.MustGetInt("kCBMsgArgCharacteristicHandle")
 		//result := args.MustGetInt("kCBMsgArgResult")
@@ -452,7 +452,7 @@ func (ble *BLE) HandleXpcEvent(event xpc.Dict, err error) {
 			log.Println("no peripheral", deviceUuid)
 		}
 
-	case read:
+	case readEvt:
 		deviceUuid := args.MustGetUUID("kCBMsgArgDeviceUUID")
 		characteristicsHandle := args.MustGetInt("kCBMsgArgCharacteristicHandle")
 		//result := args.MustGetInt("kCBMsgArgResult")
