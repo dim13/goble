@@ -488,9 +488,26 @@ func (ble *BLE) sendCBMsg(id int, args xpc.Dict) {
 	ble.conn.Send(message, ble.verbose)
 }
 
+const (
+	initMsg                    = 1
+	startAdvertisingMsg        = 8
+	stopAdvertisingMsg         = 9
+	startScanningMsg           = 29
+	stopScanningMsg            = 30
+	connectMsg                 = 31
+	disconnectMsg              = 32
+	updateRssiMsg              = 43
+	discoverServicesMsg        = 44
+	discoverCharacteristicsMsg = 61
+	discoverDescriptorsMsg     = 69
+	readMsg                    = 64
+	removeServicesMsg          = 12
+	setServicesMsg             = 10
+)
+
 // initialize BLE
 func (ble *BLE) Init() {
-	ble.sendCBMsg(1, xpc.Dict{
+	ble.sendCBMsg(initMsg, xpc.Dict{
 		"kCBMsgArgName":    fmt.Sprintf("goble-%v", time.Now().Unix()),
 		"kCBMsgArgOptions": xpc.Dict{"kCBInitOptionShowPowerAlert": 0},
 		"kCBMsgArgType":    0,
@@ -503,7 +520,7 @@ func (ble *BLE) StartAdvertising(name string, serviceUuids []xpc.UUID) {
 	for i, uuid := range serviceUuids {
 		uuids[i] = []byte(uuid[:])
 	}
-	ble.sendCBMsg(8, xpc.Dict{
+	ble.sendCBMsg(startAdvertisingMsg, xpc.Dict{
 		"kCBAdvDataLocalName":    name,
 		"kCBAdvDataServiceUUIDs": uuids,
 	})
@@ -518,11 +535,11 @@ func (ble *BLE) StartAdvertisingIBeaconData(data []byte) {
 		l := len(data)
 		buf := bytes.NewBuffer([]byte{byte(l + 5), 0xFF, 0x4C, 0x00, 0x02, byte(l)})
 		buf.Write(data)
-		ble.sendCBMsg(8, xpc.Dict{
+		ble.sendCBMsg(startAdvertisingMsg, xpc.Dict{
 			"kCBAdvDataAppleMfgData": buf.Bytes(),
 		})
 	} else {
-		ble.sendCBMsg(8, xpc.Dict{
+		ble.sendCBMsg(startAdvertisingMsg, xpc.Dict{
 			"kCBAdvDataAppleBeaconKey": data,
 		})
 	}
@@ -541,7 +558,7 @@ func (ble *BLE) StartAdvertisingIBeacon(uuid xpc.UUID, major, minor uint16, meas
 
 // stop advertising
 func (ble *BLE) StopAdvertising() {
-	ble.sendCBMsg(9, nil)
+	ble.sendCBMsg(stopAdvertisingMsg, nil)
 }
 
 // start scanning
@@ -560,19 +577,19 @@ func (ble *BLE) StartScanning(serviceUuids []xpc.UUID, allowDuplicates bool) {
 	}
 
 	ble.allowDuplicates = allowDuplicates
-	ble.sendCBMsg(29, args)
+	ble.sendCBMsg(startScanningMsg, args)
 }
 
 // stop scanning
 func (ble *BLE) StopScanning() {
-	ble.sendCBMsg(30, nil)
+	ble.sendCBMsg(stopScanningMsg, nil)
 }
 
 // connect
 func (ble *BLE) Connect(deviceUuid xpc.UUID) {
 	uuid := deviceUuid.String()
 	if p, ok := ble.peripherals[uuid]; ok {
-		ble.sendCBMsg(31, xpc.Dict{
+		ble.sendCBMsg(connectMsg, xpc.Dict{
 			"kCBMsgArgOptions":    xpc.Dict{"kCBConnectOptionNotifyOnDisconnection": 1},
 			"kCBMsgArgDeviceUUID": p.Uuid,
 		})
@@ -585,7 +602,7 @@ func (ble *BLE) Connect(deviceUuid xpc.UUID) {
 func (ble *BLE) Disconnect(deviceUuid xpc.UUID) {
 	uuid := deviceUuid.String()
 	if p, ok := ble.peripherals[uuid]; ok {
-		ble.sendCBMsg(32, xpc.Dict{
+		ble.sendCBMsg(disconnectMsg, xpc.Dict{
 			"kCBMsgArgDeviceUUID": p.Uuid,
 		})
 	} else {
@@ -597,7 +614,7 @@ func (ble *BLE) Disconnect(deviceUuid xpc.UUID) {
 func (ble *BLE) UpdateRssi(deviceUuid xpc.UUID) {
 	uuid := deviceUuid.String()
 	if p, ok := ble.peripherals[uuid]; ok {
-		ble.sendCBMsg(43, xpc.Dict{
+		ble.sendCBMsg(updateRssiMsg, xpc.Dict{
 			"kCBMsgArgDeviceUUID": p.Uuid,
 		})
 	} else {
@@ -613,7 +630,7 @@ func (ble *BLE) DiscoverServices(deviceUuid xpc.UUID, uuids []xpc.UUID) {
 		for i, uuid := range uuids {
 			sUuids[i] = uuid.String() // uuids may be a list of []byte (2 bytes)
 		}
-		ble.sendCBMsg(44, xpc.Dict{
+		ble.sendCBMsg(discoverServicesMsg, xpc.Dict{
 			"kCBMsgArgDeviceUUID": p.Uuid,
 			"kCBMsgArgUUIDs":      sUuids,
 		})
@@ -631,7 +648,7 @@ func (ble *BLE) DiscoverCharacterstics(deviceUuid xpc.UUID, serviceUuid string, 
 			cUuids[i] = cuuid // characteristicUuids may be a list of []byte (2 bytes)
 		}
 
-		ble.sendCBMsg(61, xpc.Dict{
+		ble.sendCBMsg(discoverCharacteristicsMsg, xpc.Dict{
 			"kCBMsgArgDeviceUUID":         p.Uuid,
 			"kCBMsgArgServiceStartHandle": p.Services[serviceUuid].startHandle,
 			"kCBMsgArgServiceEndHandle":   p.Services[serviceUuid].endHandle,
@@ -650,7 +667,7 @@ func (ble *BLE) DiscoverDescriptors(deviceUuid xpc.UUID, serviceUuid, characteri
 		s := p.Services[serviceUuid]
 		c := s.Characteristics[characteristicUuid]
 
-		ble.sendCBMsg(69, xpc.Dict{
+		ble.sendCBMsg(discoverDescriptorsMsg, xpc.Dict{
 			"kCBMsgArgDeviceUUID":                p.Uuid,
 			"kCBMsgArgCharacteristicHandle":      c.Handle,
 			"kCBMsgArgCharacteristicValueHandle": c.ValueHandle,
@@ -667,7 +684,7 @@ func (ble *BLE) Read(deviceUuid xpc.UUID, serviceUuid, characteristicUuid string
 		s := p.Services[serviceUuid]
 		c := s.Characteristics[characteristicUuid]
 
-		ble.sendCBMsg(64, xpc.Dict{
+		ble.sendCBMsg(readMsg, xpc.Dict{
 			"kCBMsgArgDeviceUUID":                p.Uuid,
 			"kCBMsgArgCharacteristicHandle":      c.Handle,
 			"kCBMsgArgCharacteristicValueHandle": c.ValueHandle,
@@ -679,12 +696,12 @@ func (ble *BLE) Read(deviceUuid xpc.UUID, serviceUuid, characteristicUuid string
 
 // remove all services
 func (ble *BLE) RemoveServices() {
-	ble.sendCBMsg(12, nil)
+	ble.sendCBMsg(removeServicesMsg, nil)
 }
 
 // set services
 func (ble *BLE) SetServices(services []Service) {
-	ble.sendCBMsg(12, nil) // remove all services
+	ble.RemoveServices()
 	ble.attributes = xpc.Array{nil}
 
 	attributeId := 1
@@ -775,6 +792,6 @@ func (ble *BLE) SetServices(services []Service) {
 		}
 
 		arg["kCBMsgArgCharacteristics"] = characteristics
-		ble.sendCBMsg(10, arg) // remove all services
+		ble.sendCBMsg(setServicesMsg, arg) // remove all services
 	}
 }
