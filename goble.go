@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/dim13/goble/xpc"
@@ -45,33 +46,34 @@ func (p Property) Readable() bool {
 	return (p & Read) != 0
 }
 
-func (p Property) String() (result string) {
+func (p Property) String() string {
+	var result []string
 	if (p & Broadcast) != 0 {
-		result += "broadcast "
+		result = append(result, "broadcast")
 	}
 	if (p & Read) != 0 {
-		result += "read "
+		result = append(result, "read")
 	}
 	if (p & WriteWithoutResponse) != 0 {
-		result += "writeWithoutResponse "
+		result = append(result, "writeWithoutResponse")
 	}
 	if (p & Write) != 0 {
-		result += "write "
+		result = append(result, "write")
 	}
 	if (p & Notify) != 0 {
-		result += "notify "
+		result = append(result, "notify")
 	}
 	if (p & Indicate) != 0 {
-		result += "indicate "
+		result = append(result, "indicate")
 	}
 	if (p & AuthenticatedSignedWrites) != 0 {
-		result += "authenticateSignedWrites "
+		result = append(result, "authenticateSignedWrites")
 	}
 	if (p & ExtendedProperties) != 0 {
-		result += "extendedProperties "
+		result = append(result, "extendedProperties")
 	}
 
-	return
+	return strings.Join(result, " ")
 }
 
 type ServiceData struct {
