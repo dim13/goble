@@ -535,6 +535,7 @@ func (ble *BLE) StartAdvertisingIBeaconData(data []byte) {
 	var utsname uname.Utsname
 	uname.Uname(&utsname)
 
+	// BUG: Why this hack?
 	if utsname.Release >= "14." {
 		l := len(data)
 		buf := bytes.NewBuffer([]byte{byte(l + 5), 0xFF, 0x4C, 0x00, 0x02, byte(l)})
