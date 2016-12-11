@@ -25,6 +25,7 @@ const (
 	poweredOn
 )
 
+// https://developer.apple.com/reference/corebluetooth/cbcharacteristicproperties
 type Property int
 
 const (
