@@ -13,7 +13,7 @@ import (
 
 //go:generate stringer -type State
 
-// https://developer.apple.com/reference/corebluetooth/cbcentralmanagerstate
+// https://developer.apple.com/reference/corebluetooth/cbperipheralmanagerstate
 type State int
 
 const (
