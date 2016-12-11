@@ -11,13 +11,9 @@ import (
 	"github.com/dim13/goble/xpc"
 )
 
-// "github.com/dim13/goble/xpc"
-//
-// BLE support
-//
-
 //go:generate stringer -type State
 
+// https://developer.apple.com/reference/corebluetooth/cbcentralmanagerstate
 type State int
 
 const (
@@ -168,6 +164,7 @@ func (ble *BLE) SetVerbose(v bool) {
 }
 
 // events
+// FIXME: source of magic values?
 const (
 	stateChangeEvt             = 6
 	advertisingStartEvt        = 16
@@ -492,6 +489,7 @@ func (ble *BLE) sendCBMsg(id int, args xpc.Dict) {
 	ble.conn.Send(message, ble.verbose)
 }
 
+// FIXME: source of magic values?
 const (
 	initMsg                    = 1
 	startAdvertisingMsg        = 8
