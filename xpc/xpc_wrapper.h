@@ -2,7 +2,6 @@
 #define _XPC_WRAPPER_H_
 
 #include <xpc/xpc.h>
-#include <sys/utsname.h>
 
 extern xpc_type_t TYPE_ERROR;
 

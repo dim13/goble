@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dim13/goble/uname"
 	"github.com/dim13/goble/xpc"
 )
 
@@ -531,8 +532,8 @@ func (ble *BLE) StartAdvertising(name string, serviceUuids []xpc.UUID) {
 
 // start advertising as IBeacon (raw data)
 func (ble *BLE) StartAdvertisingIBeaconData(data []byte) {
-	var utsname xpc.Utsname
-	xpc.Uname(&utsname)
+	var utsname uname.Utsname
+	uname.Uname(&utsname)
 
 	if utsname.Release >= "14." {
 		l := len(data)
