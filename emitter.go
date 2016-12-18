@@ -70,12 +70,12 @@ func (e *Emitter) Emit(ev Event) {
 	}
 }
 
-// Register an handler for the specified event
-func (e *Emitter) Register(event string, fn EventHandlerFunc) {
+// On registers handler for the specified event
+func (e *Emitter) On(event string, fn EventHandlerFunc) {
 	e.handlers[event] = fn
 }
 
-// Deregister an handler for the specified event
-func (e *Emitter) Deregister(event string) {
+// Off deregisters handler for the specified event
+func (e *Emitter) Off(event string) {
 	delete(e.handlers, event)
 }
