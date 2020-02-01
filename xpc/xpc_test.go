@@ -3,6 +3,8 @@ package xpc
 import (
 	"fmt"
 	"testing"
+
+	"github.com/dim13/goble/uname"
 )
 
 func checkUUID(t *testing.T, v interface{}) UUID {
@@ -111,11 +113,11 @@ func TestConvertMap(t *testing.T) {
 }
 
 func TestUname(t *testing.T) {
-	var uname Utsname
+	var name uname.Utsname
 
-	if err := Uname(&uname); err != nil {
+	if err := uname.Uname(&name); err != nil {
 		t.Errorf("Uname error %v", err)
 	} else {
-		t.Logf("Uname: %#v", uname)
+		t.Logf("Uname: %#v", name)
 	}
 }

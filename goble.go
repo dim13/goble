@@ -152,14 +152,14 @@ type BLE struct {
 	lastServiceAttributeId int
 	allowDuplicates        bool
 
-	utsname xpc.Utsname
+	utsname uname.Utsname
 }
 
 func New() *BLE {
 	ble := &BLE{peripherals: map[string]*Peripheral{}, Emitter: Emitter{}}
 	ble.Emitter.Init()
 	ble.conn = xpc.XpcConnect("com.apple.blued", ble)
-	xpc.Uname(&ble.utsname)
+	uname.Uname(&ble.utsname)
 	return ble
 }
 
