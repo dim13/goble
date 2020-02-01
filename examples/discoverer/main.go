@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/raff/goble"
+	"github.com/dim13/goble"
 )
 
 func main() {
@@ -27,9 +27,9 @@ func main() {
 	}
 
 	ble.On("stateChange", func(ev goble.Event) (done bool) {
-                if *verbose {
-                        fmt.Println("stateChange", ev.State)
-                }
+		if *verbose {
+			fmt.Println("stateChange", ev.State)
+		}
 		if ev.State == "poweredOn" {
 			ble.StartScanning(nil, *dups)
 		} else {
@@ -42,9 +42,9 @@ func main() {
 	})
 
 	ble.On("discover", func(ev goble.Event) (done bool) {
-                if *verbose {
-                        fmt.Println("discover", ev.State)
-                }
+		if *verbose {
+			fmt.Println("discover", ev.State)
+		}
 		if *compact {
 			fmt.Println("peripheral:", ev.DeviceUUID)
 			if ev.Peripheral.Advertisement.LocalName != "" {

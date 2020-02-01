@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/raff/goble"
+	"github.com/dim13/goble"
 )
 
 var (
