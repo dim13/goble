@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dim13/goble"
+	"github.com/raff/goble"
 )
 
 var (
@@ -57,7 +57,7 @@ func explore(ble *goble.BLE, peripheral *goble.Peripheral) {
 				}
 
 				results[service.Uuid] = Result{data: serviceInfo}
-				ble.DiscoverCharacterstics(ev.DeviceUUID, service.Uuid, nil)
+				ble.DiscoverCharacteristics(ev.DeviceUUID, service.Uuid, nil)
 			}
 		}
 

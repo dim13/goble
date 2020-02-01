@@ -54,6 +54,8 @@ func (e *Emitter) Init() {
 				log.Println("unhandled Emit", ev)
 			}
 		}
+
+		close(e.event) // TOFIX: this causes new "emits" to panic.
 	}()
 }
 

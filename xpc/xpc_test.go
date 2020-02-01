@@ -109,3 +109,13 @@ func TestConvertMap(t *testing.T) {
 		})
 	}
 }
+
+func TestUname(t *testing.T) {
+	var uname Utsname
+
+	if err := Uname(&uname); err != nil {
+		t.Errorf("Uname error %v", err)
+	} else {
+		t.Logf("Uname: %#v", uname)
+	}
+}
